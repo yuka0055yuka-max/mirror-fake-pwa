@@ -18,17 +18,33 @@
   <style>
     body { font-family: sans-serif; padding: 2em; background: #f0f0f0; }
     #preview { max-width: 300px; margin-top: 1em; }
-    .safe { color: green; }
-    .danger { color: red; }
+    .safe { color: green; font-weight: bold; }
+    .danger { color: red; font-weight: bold; }
+    ul { padding-left: 1.2em; }
+    li { margin-bottom: 0.5em; }
+    details summary { cursor: pointer; font-weight: bold; }
+    #download { display: block; margin-top: 1em; }
   </style>
 </head>
 <body>
   <h1>🪞 mirror_fake Lite</h1>
+
   <input type="file" id="upload" accept="image/*"><br>
   <img id="preview"><br>
+
+  <h2>🧠 フェイク分析スコア</h2>
   <p id="score"></p>
-  <p id="info"></p>
+
+  <h2>🔍 加工解析の根拠</h2>
+  <div id="info"></div>
+
   <button id="cleanBtn">Exif削除して安全化</button>
   <a id="download" style="display:none;">安全な画像をダウンロード</a>
+
+  <hr>
+
+  <h2>🎭 デモ画像で試す</h2>
+  <button onclick="loadDemo('edited.jpg')">加工済み画像</button>
+  <button onclick="loadDemo('original.jpg')">未加工画像</button>
 </body>
 </html>
