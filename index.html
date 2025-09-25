@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>mirror_fake Lite</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="mirror_fake Lite">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+  <script src="exif-js.min.js"></script>
+  <script src="exif-stripper.js"></script>
+  <script src="script.js" defer></script>
+  <style>
+    body { font-family: sans-serif; padding: 2em; background: #f0f0f0; }
+    #preview { max-width: 300px; margin-top: 1em; }
+    .safe { color: green; }
+    .danger { color: red; }
+  </style>
+</head>
+<body>
+  <h1>🪞 mirror_fake Lite</h1>
+  <input type="file" id="upload" accept="image/*"><br>
+  <img id="preview"><br>
+  <p id="score"></p>
+  <p id="info"></p>
+  <button id="cleanBtn">Exif削除して安全化</button>
+  <a id="download" style="display:none;">安全な画像をダウンロード</a>
+</body>
+</html>

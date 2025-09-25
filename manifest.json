@@ -1,0 +1,8 @@
+{
+  "name": "mirror_fake Lite",
+  "short_name": "mirror_fake",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#222222"
+}
