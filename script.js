@@ -1,27 +1,44 @@
-function removeExifFromBase64(base64Image) {
-  const marker = 'data:image/jpeg;base64,';
-  if (!base64Image || !base64Image.startsWith(marker)) return base64Image;
+document.getElementById("upload").addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
 
-  const binary = atob(base64Image.replace(marker, ''));
-  let result = binary.slice(0, 2); // SOIマーカー保持
-  let offset = 2;
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = document.getElementById("preview");
+    img.onload = function () {
+      EXIF.getData(img, function () {
+        const allMetaData = EXIF.getAllTags(this);
+        const info = JSON.stringify(allMetaData, null, 2);
+        document.getElementById("info").textContent = info;
 
-  while (offset + 4 <= binary.length) {
-    const markerStart = binary.charCodeAt(offset);
-    const markerType = binary.charCodeAt(offset + 1);
-    const length = binary.charCodeAt(offset + 2) * 256 + binary.charCodeAt(offset + 3);
+        const score = Object.keys(allMetaData).length;
+        document.getElementById("score").textContent =
+          score === 0
+            ? "✅ フェイクの可能性は低い（Exifなし）"
+            : `⚠️ フェイク判定スコア: ${score}`;
+      });
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
 
-    if (isNaN(length) || offset + length + 2 > binary.length) break;
+document.getElementById("cleanBtn").addEventListener("click", function () {
+  const img = document.getElementById("preview");
+  if (!img.src) return;
 
-    const segment = binary.slice(offset, offset + length + 2);
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0);
 
-    // Exifセグメント (APP1) を除外
-    if (!(markerStart === 0xFF && markerType === 0xE1)) {
-      result += segment;
-    }
-
-    offset += length + 2;
-  }
-
-  return marker + btoa(result);
-}
+  canvas.toBlob(function (blob) {
+    const url = URL.createObjectURL(blob);
+    const link = document.getElementById("download");
+    link.href = url;
+    link.download = "safe_image.jpg";
+    link.style.display = "inline";
+    link.textContent = "✅ 削除完了！安全な画像をダウンロード";
+  }, "image/jpeg", 0.95);
+});
