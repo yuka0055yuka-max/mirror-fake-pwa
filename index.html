@@ -1,46 +1,55 @@
-index.html
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>mirror_fake Lite</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="mirror_fake Lite">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
-  <script src="exif-js.min.js"></script>
-  <script src="exif-stripper.js"></script>
-  <script src="script.js" defer></script>
   <style>
-    body { font-family: sans-serif; padding: 2em; background: #f0f0f0; }
-    #preview { max-width: 300px; margin-top: 1em; }
-    .safe { color: green; font-weight: bold; }
-    .danger { color: red; font-weight: bold; }
-    ul { padding-left: 1.2em; }
-    li { margin-bottom: 0.5em; }
-    details summary { cursor: pointer; font-weight: bold; }
-    #download { display: block; margin-top: 1em; }
+    body {
+      font-family: sans-serif;
+      background: #f4f4f9;
+      padding: 2em;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1em;
+      margin: 1em auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-width: 500px;
+    }
+    .preview {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 1em;
+    }
+    .button {
+      padding: 0.8em 1.2em;
+      border: none;
+      border-radius: 8px;
+      background: #007aff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1em;
+    }
+    .danger { background: #dc3545; }
+    .safe { background: #28a745; }
+    .checkbox {
+      margin-top: 1em;
+    }
   </style>
 </head>
 <body>
   <h1>🪞 mirror_fake Lite</h1>
+  <input type="file" id="upload" accept="image/*" multiple />
+  <div id="results"></div>
+  <button id="downloadSelected" class="button safe">✅ 選択した画像をダウンロード</button>
 
-  <input type="file" id="upload" accept="image/*"><br>
-  <img id="preview"><br>
-
-  <h2>🧠 フェイク分析スコア</h2>
-  <p id="score"></p>
-
-  <h2>🔍 加工解析の根拠</h2>
-  <div id="info"></div>
-
-  <button id="cleanBtn">Exif削除して安全化</button>
-  <a id="download" style="display:none;">安全な画像をダウンロード</a>
+  <script src="exif-js.min.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
+
+
