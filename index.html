@@ -1,44 +1,212 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>mirror_fake Lite</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="mirror_fake Lite">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-  </script>
-  <script src="exif-js.min.js"></script>
-  <script src="exif-stripper.js"></script>
-  <script src="script.js" defer></script>
-  <style>
-    body { font-family: sans-serif; padding: 2em; background: #f0f0f0; }
-    #preview { max-width: 300px; margin-top: 1em; }
-    .safe { color: green; font-weight: bold; }
-    .danger { color: red; font-weight: bold; }
-    ul { padding-left: 1.2em; }
-    li { margin-bottom: 0.5em; }
-    details summary { cursor: pointer; font-weight: bold; }
-    #download { display: block; margin-top: 1em; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mirror_fake Lite</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="mirror_fake Lite">
+    <style>
+        :root {
+            --primary-color: #333;
+            --secondary-color: #666;
+            --background-color: #f4f4f9;
+            --card-background: #ffffff;
+            --safe-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --border-radius: 12px;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 1.5em;
+            background-color: var(--background-color);
+            color: var(--primary-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: 1.5em;
+            margin-bottom: 1.5em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+        #upload-label {
+            display: block;
+            text-align: center;
+            padding: 1em 1.5em;
+            background-color: #007aff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #upload-label:hover {
+            background-color: #005ecb;
+        }
+        #upload {
+            display: none;
+        }
+        #results {
+            display: none; /* 初期状態では非表示 */
+            text-align: center;
+        }
+        #preview {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 1em;
+            border: 1px solid #ddd;
+        }
+        #score-meter {
+            width: 150px;
+            height: 150px;
+            position: relative;
+            margin: 1em auto;
+        }
+        #score-circle-bg {
+            fill: none;
+            stroke: #eee;
+            stroke-width: 10;
+        }
+        #score-circle-fg {
+            fill: none;
+            stroke: var(--safe-color);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform-origin: 50% 50%;
+            transform: rotate(-90deg);
+            transition: stroke-dashoffset 0.8s ease-out, stroke 0.8s;
+        }
+        #score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            font-weight: bold;
+        }
+        #score-label { font-weight: bold; margin-top: 0; }
+        .reasons-list {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-top: 1.5em;
+        }
+        .reasons-list li {
+            background-color: var(--background-color);
+            padding: 0.8em;
+            border-radius: 8px;
+            margin-bottom: 0.8em;
+            border-left: 5px solid;
+        }
+        details {
+            text-align: left;
+            margin-top: 1em;
+        }
+        summary { cursor: pointer; font-weight: bold; }
+        .button {
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 1em;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        #cleanBtn {
+            background-color: #34c759;
+            color: white;
+            margin-bottom: 1em;
+        }
+        #download {
+            background-color: #5856d6;
+            color: white;
+            text-decoration: none;
+            display: none; /* 初期状態では非表示 */
+        }
+        #loader {
+            display: none;
+            text-align: center;
+        }
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #007aff;
+            animation: spin 1s ease infinite;
+            margin: 1em auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <h1>🪞 mirror_fake Lite</h1>
+    <div class="container">
+        <h1>🪞 mirror_fake Lite</h1>
 
-  <input type="file" id="upload" accept="image/*"><br>
-  <img id="preview"><br>
+        <div class="card">
+            <label for="upload" id="upload-label">画像を選択して解析</label>
+            <input type="file" id="upload" accept="image/*">
+        </div>
 
-  <h2>🧠 フェイク分析スコア</h2>
-  <p id="score"></p>
+        <div id="loader" class="card">
+            <div class="spinner"></div>
+            <p><strong>画像を解析中...</strong></p>
+        </div>
 
-  <h2>🔍 加工解析の根拠</h2>
-  <div id="info"></div>
+        <div id="results" class="card">
+            <img id="preview">
 
-  <button id="cleanBtn">Exif削除して安全化</button>
-  <a id="download" style="display:none;">安全な画像をダウンロード</a>
+            <h2>🧠 フェイク分析スコア</h2>
+            <div id="score-meter">
+                <svg viewBox="0 0 100 100">
+                    <circle id="score-circle-bg" cx="50" cy="50" r="45"></circle>
+                    <circle id="score-circle-fg" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div id="score-text">0%</div>
+            </div>
+            <p id="score-label">フェイクの可能性は極めて低いです</p>
+
+            <div id="info">
+                </div>
+
+            <button id="cleanBtn" class="button">Exifを削除して安全化</button>
+            <a id="download" class="button">安全な画像をダウンロード</a>
+        </div>
+    </div>
+    
+    <script src="exif.js"></script>
+    <script src="script.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js').then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
 </body>
 </html>
